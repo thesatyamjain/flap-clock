@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --flap-dark: #0a0a0a;
+  --flap-card: #1a1a1a;
+  --flap-text: #f5f5f5;
+  --flap-accent: #3b82f6;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: radial-gradient(ellipse at top, #1a1a2e 0%, #0a0a0a 100%);
+  min-height: 100vh;
+  color: var(--flap-text);
+}
+
+@layer utilities {
+  .flap-shadow {
+    box-shadow: 
+      0 10px 30px -10px rgba(0, 0, 0, 0.8),
+      0 0 50px -10px rgba(59, 130, 246, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .flap-digit-shadow {
+    box-shadow: 
+      0 2px 10px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .glassmorphism {
+    background: rgba(26, 26, 26, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}

@@ -1,0 +1,74 @@
+name: Skills Registry CI
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: ["main", "feat/*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: 🔍 Validate Skills (Soft Mode)
+        run: |
+          python3 scripts/validate_skills.py
+
+      - name: 🏗️ Generate Index
+        run: |
+          python3 scripts/generate_index.py
+
+      - name: 📝 Update README
+        run: |
+          python3 scripts/update_readme.py
+
+      - name: Set up GitHub credentials (for auto-sync)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Auto-commit registry drift (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Se non ci sono cambi, esci senza errore
+          git diff --quiet && exit 0
+
+          git add README.md skills_index.json || true
+
+          # Se non c'è niente da committare, esci senza errore
+          git diff --cached --quiet && exit 0
+
+          git commit -m "chore: sync generated registry files [ci skip]"
+          git push origin HEAD
+
+      - name: 🚨 Check for Uncommitted Drift
+        run: |
+          if ! git diff --quiet; then
+            echo "❌ Detected uncommitted changes produced by registry/readme scripts."
+            echo
+            echo "To fix locally, run the FULL Validation Chain, then commit and push:"
+            echo "  python3 scripts/validate_skills.py"
+            echo "  python3 scripts/generate_index.py"
+            echo "  python3 scripts/update_readme.py"
+            echo "  git add README.md skills_index.json"
+            echo "  git commit -m \"chore: sync generated registry files\""
+            echo "  git push"
+            exit 1
+          fi
