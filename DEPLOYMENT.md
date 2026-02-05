@@ -41,7 +41,7 @@ Use these exact settings:
 | **Production branch** | `main` |
 | **Framework preset** | `Next.js` |
 | **Build command** | `npm run build` |
-| **Build output directory** | `.next` |
+| **Build output directory** | `out` |
 | **Root directory** | `/` |
 | **Node version** | `18` or higher |
 
@@ -82,12 +82,28 @@ wrangler login
 
 ```bash
 cd "e:\Project Flap Clock\flap-clock"
-npx wrangler pages deploy .next
+npx wrangler pages deploy out
 ```
 
 ---
 
 ## Troubleshooting
+
+### "Pages only supports files up to 25 MiB in size" Error
+
+**Issue**: Deployment fails with error about file size limit, typically from `.next/cache/webpack/` files
+
+**Solution**: Create a `.cfignore` file in your project root to exclude cache files:
+
+```bash
+# Create .cfignore file
+echo ".next/cache/" > .cfignore
+echo "node_modules/" >> .cfignore
+```
+
+Or use the `.cfignore` file already created in your project. Then retry deployment.
+
+**Alternative**: Use static export (see "Static Export Issues" section below) which doesn't include cache files.
 
 ### Build Fails
 
